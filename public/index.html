@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-lang</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="body">
+  <header>
+    <h1 id="h1">Welcome to our page</h1>
+    <label id="label">Choose your language:</label>
+    <select id="language-select" onchange="changeLanguage()">
+        <option value="en">English</option>
+        <option value="es">Spanish</option>
+        <option value="hi">Hindi</option>
+        <option value="pt">Portuguese</option>
+        <option value="zh">Chinese</option>
+        <option value="fr">French</option>
+    </select>
+</header>
+<main id="content">
+  <p><h3>This is a Our sample website with multi-language support Wohoooo!</h3></p>
+</main>
+<script src="https://smtpjs.com/v3/smtp.js">
+</script>
+<script>
+//create a dictionary for the changing that can be used
+// import * as twilio from 'twilio';
+const translation ={
+  en:{
+    select : "Choose your language",
+    title : "Welcome to our page",
+    para : "This is a Our sample website with multi-language support Wohoooo! ",
+  },
+  es:{
+    select : "Elige tu idioma",
+    title : "Bienvenida a nuestra pagina",
+    para : "Este es nuestro sitio web de muestra con soporte en varios idiomas ¡Wohoooo! ",
+  },
+  hi:{
+    select : "अपनी भाषा चुनें",
+    title : "हमारे पेज पर आपका स्वागत है",
+    para : "यह बहुभाषी समर्थन वाली हमारी नमूना वेबसाइट है  "
+  },
+  pt:{
+    select : "Escolha seu idioma",
+    title : "Bem-vindo à nossa página",
+    para : "Este é um nosso site de exemplo com suporte multilíngue Uau! "
+  },
+  zh:{
+    select : "选择你的语言",
+    title : "欢迎来到我们的页面",
+    para : "这是我们的示例网站，支持多语言 哇哦！"
+  },
+  fr:{
+    select : "Choisissez votre langue",
+    title : "Bienvenue sur notre page",
+    para : "Ceci est notre exemple de site Web avec un support multilingue Wohoooo !"
+  }
+}
+
+  function changeLanguage() {
+    const languageSelect = document.getElementById('language-select');
+    const selectedLanguage = languageSelect.value;
+    let backgroundColorClass = 'white';
+    let h1 = document.getElementById("h1");
+    let title = document.getElementById("label");
+    let par = document.getElementById("content");
+
+    // languageSelect.addEventListener("change",(event) => {
+    //   selectedLanguage(event.target.value)
+    // })
+
+
+    switch (selectedLanguage) {
+        case 'hi':
+            backgroundColorClass = 'blue';
+            h1.innerText = translation.hi.select;
+            title.innerText = translation.hi.title;
+            par.innerText = translation.hi.para;
+            break;
+        case 'zh':
+            backgroundColorClass = 'green';
+            h1.innerText = translation.zh.select;
+            title.innerText = translation.zh.title;
+            par.innerText = translation.zh.para;
+            break;
+        case 'fr':
+            h1.innerText = translation.fr.select;
+            title.innerText = translation.fr.title;
+            par.innerText = translation.fr.para;
+            break;
+        case 'es':
+            h1.innerText = translation.es.select;
+            title.innerText = translation.es.title;
+            par.innerText = translation.es.para;
+            break;
+        case 'pt': 
+            h1.innerText = translation.pt.select;
+            title.innerText = translation.pt.title;
+            par.innerText = translation.pt.para;
+            break;
+        case 'en':
+            h1.innerText = translation.en.select;
+            title.innerText = translation.en.title;
+            par.innerText = translation.en.para;
+            break;
+
+    }
+
+    document.body.className = backgroundColorClass;
+
+    if (selectedLanguage === 'fr') {
+        verifyEmailForFrench();
+    } else {
+        verifyMobileForOtherLanguages();
+    }
+}
+
+//for the email otp
+async function verifyEmailForFrench() {
+            const email = prompt("Please enter your email for verification:");
+            const response = await fetch('/send-email-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+       //get email in prompt and save it       
+
+});
+           console.log(email)
+           //generating the otp value
+            let otp_val = Math.floor(Math.random()*10000);
+            let emailbody = `<h1>Hey you received your otp- <h1>${otp_val}</h1></h1>`;
+              console.log(emailbody)
+
+           //sending email by smtp.js website create and change the secure token etc...
+            Email.send({
+                SecureToken : "78da9405-6c3b-420c-a437-a5e4bb16cc65 ",
+                To : email,
+                From : "krishnakumarbm63@gmail.com",
+                Subject : " JS Email OTP",
+                Body : emailbody,
+              }).then(
+                async message => {
+      if (message === "OK") {
+        alert("OTP has been sent to your email.");
+        const otp = prompt("Please enter the OTP:");
+        const verifyResponse = await fetch('/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: email, otp })
+        });
+        console.log(otp);
+        //validating the otp
+        if (otp === otp_val.toString()) {
+          alert("Email verified successfully!");
+        } else {
+          alert("Invalid OTP. Please try again.");
+        }
+      } else {
+        alert("Failed to send OTP. Please try again.");
+      }
+    }
+  ).catch(error => {
+    alert("An error occurred while sending the email: " + error.message);
+  });
+}
+//for the mobile otp
+        async function verifyMobileForOtherLanguages() {
+            const mobile = prompt("Please enter your mobile number for verification:");
+            const response = await fetch('/send-sms-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile })
+            });
+            console.log(mobile)
+
+            let otp_val = Math.floor(Math.random()*10000);
+            let smsbody = `<h1>Hey you received your otp- <h1>${otp_val}</h1></h1>`;
+              console.log(smsbody)
+
+              const otp = prompt("Please enter the OTP:");
+                const accountSid = 'ACe4c330318ed6467def6e1fda34a4bb75';
+                const authToken = '673f26bf515652cfa2a66a877ca9cadf';
+                const client = require('twilio')(accountSid, authToken);
+
+                client.messages
+                   .create({
+                        body: smsbody,
+                        from: '+12183455324',
+                          to: mobile            //'+18777804236'
+                   })
+               .then 
+               then 
+               async  message => {
+      if (message === "OK") {
+        alert("OTP has been sent to your email.");
+        const otp = prompt("Please enter the OTP:");
+        const verifyResponse = await fetch('/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: email, otp })
+        });
+        console.log(otp);
+        //validating the otp
+        if (otp === otp_val.toString()) {
+          alert("Email verified successfully!");
+        } else {
+          alert("Invalid OTP. Please try again.");
+        }
+      } else {
+        alert("Failed to send OTP. Please try again.");
+      }
+      }
+    }
+            
+        
+            
+</script>
+</body>
+</html>
